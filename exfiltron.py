@@ -47,6 +47,21 @@ def setArgParserOptions():
                         action='store_true', dest='destIP', help=("The IP " +
                         "address you want the data sent to"))
 
+    parser.add_argument('-s', '--source-IP', metavar='[-s]', type=string,
+                        action='store_true', dest='srcIP', help=("The spoofed" +
+                        " IP address you want the data sent from. By default" +
+                        ", the data is sent from the actual IP. Use this " +
+                        "with caution. This may set off an alarm if the " +
+                        "network is using DHCP snooping"))
+
+    parser.add_argument('-a', '--data-per-packet', metavar='[-a]', type=int,
+                        action='store_true', dest='amountOfData', help=("By" +
+                        " default, the amount of data stored in a packet is" +
+                        " the same as it normally is to decrease the chances" +
+                        " of detection by an IDS (example: ICMP exfiltration" +
+                        " will have a default packet size of 64 bytes). Use" +
+                        " this option to send more or less data"))
+
     return parser.parse_args()
 
 
