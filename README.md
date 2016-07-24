@@ -25,9 +25,12 @@ been placed on the target machine, run the following command:
 [-a]`
 
 * -h is help
-* -a is the amount of data you want to fit into each packet. The default is the
-number of bytes that normally sit in that packet while the min amount is 1 byte
-and the max amount is the MTU minus the size of the packet.
+* -a (--data-per-packet) is the amount of data you want to fit into each packet.
+The default is the number of bytes that normally sit in that packet while the
+min amount is 1 byte and the max amount is the MTU minus the size of the packet
+* -t (--time) specifies the amount of time to wait between after sending a packet
+before sending another packet. This numerical value should be given in terms of
+seconds. If no value is explicitly set, exfiltron defaults the value to 5 seconds
 
 ## Methods of Exfiltration
 Currently, the following methods of exfiltration are available/in progress:
