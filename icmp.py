@@ -6,6 +6,7 @@
 
 from scapy.all import*
 import os
+import sys
 
 #  icmp: args: destinationIP(string), filename(str), BytesPerPacket(int)
 #  rtn: list of packets
@@ -19,7 +20,12 @@ def icmp(destIP, filename, BytesPP):
 
    
     # size is the number of bytes in the file
-    size=os.stat(filename).st_size
+    try:
+        size=os.stat(filename).st_size
+    except LookupError:
+        print("Could not find " + filename)
+        print("Exiting...")
+        sys.exit()
     
     #if size > 
     # the number of packets send should be the size of the

