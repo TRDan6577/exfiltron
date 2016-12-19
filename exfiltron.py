@@ -1,6 +1,6 @@
 """
 File: exfiltron.py
-Author: Thomas DAniels
+Author: Thomas Daniels
 Purpose: This is the main running program for the Exfiltron framework. This
         program is used as a prompt for the attacker to execute his or her
         desired commands using other parts of this framework and should be
@@ -70,12 +70,12 @@ def setArgParserOptions():
                         help="By default, the amount of data stored in a " +
                         "packet is the same as it normally is to decrease " +
                         "the chances of detection by an IDS (example: ICMP" +
-                        "exfiltration will have a default packet size of " +
+                        " exfiltration will have a default packet size of " +
                         "64 bytes). Use this option to send more or less " +
                         "data", default=64)
 
     # Add the time between packets option argument
-    parser.add_argument('-t', '--time', type=int, help='By default, the' +
+    parser.add_argument('-t', '--time', type=int, help='By default, the ' +
                         'amount of time between packets sent is 5 seconds.' +
                         ' Use this option to specify a different amount in' +
                         ' terms of seconds', default=5)
