@@ -13,8 +13,8 @@ evade IDS in order to get data back to you.
 ## Things you must have before extraction time
 * You must have [python2.7+](https://www.python.org) installed on both the
 server and the client side
-* You must have [scapy](www.secdev.org/projects/scapy) ([download](scapy.net))
-installed on both the server and the client side
+* You must have [scapy](http://www.secdev.org/projects/scapy) 
+([download](http://scapy.net)) installed on both the server and the client side
     * If you wish to encrypt your file before sending it out, make sure you have
 the [cryptography](https://cryptography.io/en/latest) python package which
 should be installed when you install scapy
