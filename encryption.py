@@ -18,8 +18,6 @@ except ImportError:
     print("Exiting...")
     sys.exit()
 
-# TODO: the decrypt function will need to ask if the key was random or user input
-# Decrypt should take user given hex and do: key == hex.decode('hex')
 
 def encrypt(data):
     """
@@ -110,3 +108,76 @@ def encrypt(data):
     
     # Return the ciphertext
     return (encryptor.update(data) + encryptor.finalize())
+
+def decrypt(data):
+    """
+    Purpose: decrypts the given data
+    @param (bits) data - the ciphertext
+    @return (bits) the plaintext
+    """
+
+    # Determine the key
+    sameKey = False
+    while(!sameKey):
+        # Get the key from the user
+        print("Please enter the key you used to encrypt the data on the " +
+              "client (target) side. IF YOU HAD EXFILTRON GENERATE THE KEY " +
+              "FOR YOU, LEAVE THIS FIELD BLANK AND JUST PRESS ENTER")
+        key = getpass.getpass("Key: ")
+
+        # Get hex version of randomly generated key from the user
+        if(key is ''):
+            break
+
+        # Confirm the key
+        confirm_key = getpass.getpass("Please confirm key: ")
+        sameKey = confirm_key is key
+    
+
+    # If we generated the key, we'll need to convert from string to bytes
+    if(key = ''):
+        sameKey = False
+        while(!sameKey):
+            # Get the key from the user
+            print("Please enter the hex version of the key Exfiltron " +
+                  "generated for you")
+            hexInput = getpass.getpass("Key: ")
+
+            # Confirm the key
+            confirm_key = getpass.getpass("Please confirm key: ")
+            sameKey = confirm_key is hexInput
+
+        key = hexInput.decode('hex')
+    else:
+        # Hash the user given key so that it's length is 256 (using SHA256...)
+        from cryptography.hazmat.primitives import hashes
+        digest = hashes.Hash(hashes.SHA256(), default_backend())
+        digest.update(key)
+        key = digest.finalize()
+
+
+    # Get the IV from the user
+    print("Please enter the IV you used to encrypt the data on the " +
+          "client (target) side. IF YOU HAD EXFILTRON GENERATE THE IV " +
+          "FOR YOU, LEAVE THIS FIELD BLANK AND JUST PRESS ENTER")
+    IV = raw_input("IV: ")
+
+    # If Exfiltron generated one for the user, convert it to bytes
+    if(IV = ''):
+        print("Please enter the hex version of the IV Exfiltron generated for" +
+              " you")
+        IV = raw_input("IV: ")
+        IV = IV.decode('hex')
+    else:
+        from cryptography.hazmat.primitives import hashes
+        digest = hashes.Hash(hashes.MD5(), default_backend())
+        digest.update(IV)
+        IV = digest.finalize()
+
+    # Make the cipher
+    cipher = Cipher(algorithms.AES(key), modes.CTR(IV), default_backend())
+    decryptor = cipher.decryptor()
+    
+    # Return the ciphertext
+    return (decryptor.update(data) + decryptor.finalize())
+
