@@ -105,6 +105,13 @@ def setArgParserOptions():
                         "option silences all output relating to the progress" +
                         " bar", default=True)
 
+    # Add option to encrypt data
+    parser.add_argument('-e', '--encrypt', action='store_true', help="Setting" +
+                        " this flag enables AES-256 bit encryption with CTR " +
+                        " mode. YOU SHOULD ONLY USE THIS OPTION IF THE METHOD" +
+                        " YOU ARE USING TO EXECUTE THIS PROGRAM IS A SECURED " +
+                        "CHANNEL", default=False)
+
     return parser.parse_args()
 
 
@@ -122,7 +129,6 @@ def send(packets, amountOfTime, destIP, displayProgress):
     numPackets = len(packets)
     count = 0
 
-    # TODO: Make progress bar
     # Send each packet in the list
     for packet in packets:
 
@@ -182,9 +188,12 @@ def progressBar(progress, total):
     # Determine number of blocks
     totalProgress = progress/float(total)
     numBlocks = int(round(PROGRESS_BAR_SIZE*totalProgress))
+
+    # Make the progress bar
     progressString = ("[" + "#"*numBlocks + "-"*(PROGRESS_BAR_SIZE-numBlocks) +
             "] " + str(int(round(100*totalProgress))) + "%")
 
+    # I/O operations
     sys.stdout.write(progressString)
     sys.stdout.flush()
     sys.stdout.write('\r')
