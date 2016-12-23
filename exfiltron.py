@@ -211,8 +211,8 @@ def main():
             print("Unable to import the icmp package.\nExiting...")
             sys.exit()
 
-        send(icmp.icmp(args.dest_ip, args.file_name, args.data_per_packet),
-             args.time, args.dest_ip, args.quiet)
+        send(icmp.icmp(args.dest_ip, args.file_name, args.data_per_packet,
+             args.encrypt), args.time, args.dest_ip, args.quiet)
 
 
 if (__name__ == '__main__'):
