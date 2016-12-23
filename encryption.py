@@ -27,7 +27,7 @@ def encrypt(data):
     """
 
     sameKey = False
-    while(!sameKey):
+    while(not sameKey):
         # Get the key from the user
         key = getpass.getpass("Please enter the key you wish to use to encrypt " +
                     "the data (the key you enter will be hashed using SHA-256. If" +
@@ -118,7 +118,7 @@ def decrypt(data):
 
     # Determine the key
     sameKey = False
-    while(!sameKey):
+    while(not sameKey):
         # Get the key from the user
         print("Please enter the key you used to encrypt the data on the " +
               "client (target) side. IF YOU HAD EXFILTRON GENERATE THE KEY " +
@@ -137,7 +137,7 @@ def decrypt(data):
     # If we generated the key, we'll need to convert from string to bytes
     if(key = ''):
         sameKey = False
-        while(!sameKey):
+        while(not sameKey):
             # Get the key from the user
             print("Please enter the hex version of the key Exfiltron " +
                   "generated for you")
