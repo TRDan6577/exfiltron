@@ -49,6 +49,9 @@ again and compares the two. Please note that the hash will be placed in the
 first packet sent and will ignore the setting placed after the -a 
 (--data-per-packet) flag. All other packets will be sized with respect to
 the -a flag. The hash in use is SHA-256
+* -z (--zip) Exfiltron zips the file and sends the zipped version to the server.
+WARNING: IF A PIECE OF DATA IS LOST DURING TRANSMISSION, EXFILTRON WILL BE
+UNABLE TO PIECE THE FILE BACK TOGETHER
 
 ## Methods of Exfiltration
 Currently, the following methods of exfiltration are available/in progress:

