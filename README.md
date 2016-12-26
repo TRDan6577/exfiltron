@@ -42,11 +42,13 @@ to the progress bar
 * -e (--encrypt) Setting this flag will result in your data being encrypted 
 with AES-256 using CTR mode. Please note that this should only be used if the
 attacker executes exfiltron.py through a secure channel
-* -i (--integrity-check) Using a hashing algorithm that is picked by the user,
-Exfiltron hashes the chosen file and sends, as the first packet, the resulting
-hash. After receiving all of the files, the attacker's side then pieces the
-files back together and runs the same hash again and compares the two (NOT YET
-IMPLEMENTED)
+* -i (--integrity-check) Exfiltron hashes the chosen file and sends, as the
+first packet, the resulting hash. After receiving all of the files, the
+attacker's side then pieces the file back together and runs the same hash
+again and compares the two. Please note that the hash will be placed in the
+first packet sent and will ignore the setting placed after the -a 
+(--data-per-packet) flag. All other packets will be sized with respect to
+the -a flag. The hash in use is SHA-256
 
 ## Methods of Exfiltration
 Currently, the following methods of exfiltration are available/in progress:

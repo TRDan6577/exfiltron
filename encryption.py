@@ -109,6 +109,7 @@ def encrypt(data):
     # Return the ciphertext
     return (encryptor.update(data) + encryptor.finalize())
 
+
 def decrypt(data):
     """
     Purpose: decrypts the given data
@@ -181,3 +182,16 @@ def decrypt(data):
     # Return the ciphertext
     return (decryptor.update(data) + decryptor.finalize())
 
+
+def check_integrity(data):
+    """
+    Purpose: Calculates a SHA-256 hash on the given data
+    @param (bytes) data - binary data
+    @return (bytes) the SHA-256 fingerprint of the data
+    """
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.backends import default_backend
+
+    digest = hashes.Hash(hashes.SHA256(), default_backend())
+    digest.update(data)
+    return digest.finalize()

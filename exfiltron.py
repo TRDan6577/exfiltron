@@ -112,6 +112,13 @@ def setArgParserOptions():
                         " YOU ARE USING TO EXECUTE THIS PROGRAM IS A SECURED " +
                         "CHANNEL", default=False)
 
+    # Add option to verify integrity of data
+    parser.add_argument('-i', '--integrity-check', action='store_true',
+                        help="Verifies the integrity of the data using " +
+                        "SHA-256. Please note that the packet containing " +
+                        "the hash will ignore the setting in the -a flag",
+                        default=False)
+
     return parser.parse_args()
 
 
@@ -212,7 +219,8 @@ def main():
             sys.exit()
 
         send(icmp.icmp(args.dest_ip, args.file_name, args.data_per_packet,
-             args.encrypt), args.time, args.dest_ip, args.quiet)
+             args.encrypt, args.integrity_check), args.time, args.dest_ip,
+             args.quiet)
 
 
 if (__name__ == '__main__'):
